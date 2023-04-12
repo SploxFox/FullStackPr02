@@ -1,11 +1,12 @@
 import { muiDialog, useModal, show as showModal, create as createNiceModal } from "@ebay/nice-modal-react"
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, FormHelperText, FormLabel, Radio, RadioGroup, TextField } from "@mui/material";
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, FormHelperText, FormLabel, Radio, RadioGroup, Stack, TextField } from "@mui/material";
 import AddCircleIcon from "@mui/icons-material/AddCircle"
 import EditNoteIcon from "@mui/icons-material/EditNote"
+import BlockIcon from '@mui/icons-material/Block';
 import { DatePicker } from "@mui/x-date-pickers";
 import { Fragment, useState } from "react";
 import { Task } from "./task";
-import { useAppContext } from "./App";
+import { useAppContext, useAppContextRef } from "./App";
 import dayjs, { Dayjs } from "dayjs";
 
 export type TaskActionType = 'add' | 'update';
@@ -36,10 +37,12 @@ export const TaskDialog = createNiceModal<TaskDialogProps>(props => {
     const [priority, setPriority] = useState(props.task.priority);
     const [priorityError, setPriorityError] = useState<string | null>(null);
 
-    const { tasks } = useAppContext();
-
+    const ctx = useAppContextRef();
+    
     const validate = () => {
         let valid = true;
+
+        const { tasks } = ctx.current;
 
         if (!title) {
             valid = false;
@@ -100,9 +103,14 @@ export const TaskDialog = createNiceModal<TaskDialogProps>(props => {
         modal.remove();
     }}}>
         <DialogTitle sx={{
-            display: 'flex'
+            display: 'flex',
+            bgcolor: 'primary.main',
+            color: 'white'
         }}>
-            { icon } { actionVerb } Task
+            <Stack direction="row" alignItems="center" gap={1}>
+                { icon }
+                { actionVerb } Task
+            </Stack>
         </DialogTitle>
         <FormControl component={Fragment}>
             <DialogContent sx={{
@@ -148,8 +156,8 @@ export const TaskDialog = createNiceModal<TaskDialogProps>(props => {
                 </Box>
             </DialogContent>
             <DialogActions>
-                <Button onClick={() => modal.hide()}>Cancel</Button>
                 <Button variant="contained" startIcon={icon} onClick={handleSubmit}>{ actionVerb }</Button>
+                <Button variant="contained" color="error" startIcon={<BlockIcon />} onClick={() => modal.hide()}>Cancel</Button>
             </DialogActions>
         </FormControl>
     </Dialog>
